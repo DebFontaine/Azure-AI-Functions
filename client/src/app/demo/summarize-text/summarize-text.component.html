@@ -1,0 +1,18 @@
+<div class="card">
+    <div>
+        <h5>Summarize Text</h5>
+    </div>
+    <div class="mt-2 mb-2">
+        <span>Drag and drop a text file to summarize the content.</span>
+    </div>
+    <div>
+        <p-fileUpload #fileuploaderAISummary uploadLabel="Analyze" name="file" size="small"
+            styleClass="p-button-outline" accept="text/*" (onError)="onUploadErrorSummary($event)"
+            (onUpload)="onFileUploadEventSummary($event)" chooseIcon="pi pi-upload" url={{textSummaryUrl}}>
+        </p-fileUpload>
+        <div *ngIf="summary" height="450px" class="card flex align-items-center gap-2 flex-wrap overflow: auto;">
+            <h5>{{fileName}}</h5>
+            <span>{{summary}}</span>                 
+        </div>
+    </div>
+</div>

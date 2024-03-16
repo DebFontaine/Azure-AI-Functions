@@ -1,0 +1,21 @@
+<div class="card">
+    <div>
+        <h5>Analyze Text</h5>
+    </div>
+    <div class="mt-2 mb-2">
+        <span>Drag and drop a text document to analyze the content.</span>
+    </div>
+    <div>
+        <p-fileUpload #fileuploaderAIText uploadLabel="Analyze" name="file" size="small"
+            styleClass="p-button-outline" accept="text/*" (onError)="onUploadErrorAnalyzeText($event)"
+            (onUpload)="onFileUploadEventAnalyzeText($event)" chooseIcon="pi pi-upload" url={{textAnalysisUrl}}>
+        </p-fileUpload>
+        <div *ngIf="textKeyWords.length > 0" height="450px" class="card flex align-items-center gap-2 flex-wrap overflow: auto;">
+            <h5>{{fileName}}</h5>
+            <div *ngFor="let word of textKeyWords">
+                <p-chip label="{{word}}"></p-chip>
+            </div>
+            
+        </div>
+    </div>
+</div>

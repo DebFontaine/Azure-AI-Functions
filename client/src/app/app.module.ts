@@ -107,21 +107,15 @@ import {AppLoginComponent} from './pages/app.login.component';
 //interceptors
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
-// Demo services
-import {CountryService} from './demo/service/countryservice';
-import {CustomerService} from './demo/service/customerservice';
-import {EventService} from './demo/service/eventservice';
-import {IconService} from './demo/service/iconservice';
-import {NodeService} from './demo/service/nodeservice';
-import {PhotoService} from './demo/service/photoservice';
-import {ProductService} from './demo/service/productservice';
-
 // Application services
 import {MenuService} from './app.menu.service';
 import { WelcomeUserComponent } from './widgets/welcome-user/welcome-user.component';
 import { AssetListComponent } from './asset-list/asset-list.component';
 import { AssetDetailComponent } from './asset-detail/asset-detail.component';
 import { AiUploadComponent } from './ai-upload/ai-upload.component';
+import { AnalyzeImageComponent } from './demo/analyze-image/analyze-image.component';
+import { AnalyzeTextComponent } from './demo/analyze-text/analyze-text.component';
+import { SummarizeTextComponent } from './demo/summarize-text/summarize-text.component';
 
 @NgModule({
     imports: [
@@ -226,12 +220,14 @@ import { AiUploadComponent } from './ai-upload/ai-upload.component';
         WelcomeUserComponent,
         AssetListComponent,
         AssetDetailComponent,
-        AiUploadComponent
+        AiUploadComponent,
+        AnalyzeImageComponent,
+        AnalyzeTextComponent,
+        SummarizeTextComponent
     ],
     providers: [ {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
         {provide: LocationStrategy, useClass: HashLocationStrategy},
-        CountryService, CustomerService, EventService, IconService, NodeService,
-        PhotoService, ProductService, MenuService, ConfirmationService,PrimeMessageService
+         MenuService, ConfirmationService,PrimeMessageService
     ],
     bootstrap: [AppComponent]
 })
