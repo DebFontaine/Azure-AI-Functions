@@ -1,0 +1,202 @@
+<div class="container-with-border">
+    <div class="table-panel" [style.width]="tablePanelWidth + '%'">
+        <p-splitter [panelSizes]="[25, 75]" styleClass="me-5" [gutterSize]="8">
+            <ng-template pTemplate>
+                <div>
+                    <p-treeTable #tt selectionMode="single" [(selection)]="selectedNode" dataKey="id" [value]="files"
+                        [columns]="cols" [autoLayout]="true" [scrollable]="true" scrollHeight='flex' [rowHover]="true"
+                        (onNodeExpand)="onNodeExpand($event)" (onNodeCollapse)="onNodeCollapsed($event)"
+                        (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeUnselect($event)"
+                        [metaKeySelection]="true">
+                        <ng-template pTemplate="caption">
+                            <div class="flex-container">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <button *ngIf="!addTopSubfolderInline" pButton pRipple label="Add Folder"
+                                        class="mr-2" (click)="toggleTopFolderControls()"></button>
+
+                                    <div class="p-input-group" *ngIf="addTopSubfolderInline == true">
+                                        <input #topfolderNameInput type="text" pInputText placeholder="Folder name" />
+                                        <button pButton pRipple icon="pi pi-check"
+                                            class="p-button-success p-button-small mr-2"
+                                            (click)="onAddSubfolder(topfolderNameInput.value)"></button>
+                                        <button pButton pRipple icon="pi pi-times"
+                                            class="p-button-warning p-button-small mr-2"
+                                            (click)="toggleTopFolderControls()"></button>                                 
+                                    </div>
+                                    <div class="flex justify-content-start align-items-center">
+                                    <h6 class="mr-2">Use AI Tags for image files</h6>
+                                    <p-inputSwitch class="mt-2" [(ngModel)]="autoFile" onchange="toggleAutoFile()"></p-inputSwitch>
+                                </div>        
+                                </div>
+
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="togglericon" let-open>
+                            <span *ngIf="open" class="pi pi-folder-open assetfolder"></span>
+                            <span *ngIf="!open" class="pi pi-folder assetfolder"></span>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Folders</th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                            <tr id="{{rowData['id']}}" class="drop-column" *ngIf="rowData['type'] === 'Folder'"
+                                pDroppable (onDrop)="drop($event, rowData['id'])" [ttRow]="rowNode" [ttRow]="rowNode"
+                                [ttSelectableRow]="rowNode">
+                                <td>
+                                    <p-treeTableToggler [rowNode]="rowNode"
+                                        *ngIf="rowData['type'] === 'Folder'"></p-treeTableToggler>
+                                    {{rowData['name']}}
+                                </td>
+                                <td>
+                                    <div *ngIf="rowData['type'] === 'Folder' && rowData['type'] != 'Company'">
+                                        <button pButton pRipple icon="pi pi-upload"
+                                            class="p-button-success p-button-small mr-2"
+                                            (click)="toggleUpload(rowData['id'])"></button>
+
+                                        <p-dialog #dialog *ngIf="uploadRows[rowData.id] && !autoFile" header="Header"
+                                            [(visible)]="uploadRows[rowData.id]" [style]="{ width: '30vw' }">
+                                            <ng-template pTemplate="header">
+                                                <span class="text-xl font-bold">Upload File</span>
+                                            </ng-template>
+                                            <p-fileUpload *ngIf="uploadRows[rowData.id] " #fileuploader chooseLabel=""
+                                                name="file" size="small" styleClass="p-button-outline"
+                                                (onError)="onUploadError($event)"
+                                                (onUpload)="onFileUploadEvent($event,rowData.id)"
+                                                chooseIcon="pi pi-upload" url="{{baseUrl + rowData['id']}}">
+                                            </p-fileUpload>
+                                        </p-dialog>
+                                        <ng-container *ngIf="autoFile && uploadRows[rowData.id]">
+                                            <app-ai-upload [folderId]="rowData.id" [visible]="autoFile" (messageEvent)="receiveMessage($event)"></app-ai-upload>
+                                        </ng-container>
+                                        <button pButton pRipple icon="pi pi-folder"
+                                            class="p-button-help p-button-small mr-2"
+                                            (click)="toggleControls(rowData['id'])"></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr *ngIf="expandedRows[rowData.id]">
+                                <td colspan="2">
+                                    <input #folderNameInput value="" pInputText label="Enter folder name" />
+                                    <button pButton pRipple icon="pi pi-check"
+                                        class="p-button-success p-button-small mr-2"
+                                        (click)="addSubfolder(rowData, folderNameInput.value)"></button>
+                                    <button pButton pRipple icon="pi pi-times"
+                                        class="p-button-warning p-button-small mr-2"
+                                        (click)="toggleControls(rowData['id'])"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-treeTable>
+                </div>
+            </ng-template>
+            <ng-template pTemplate>
+                <div>
+                    <p-treeTable #mt [value]="filesOnly" [columns]="cols" [autoLayout]="true" [scrollable]="true"
+                        scrollHeight='flex' [scrollable]="true" [style]="{ width: 'flex' }" [rowHover]="true">
+                        <ng-template pTemplate="caption">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="flex justify-content-start align-items-center">
+                                    <p-button [rounded]="true" icon="pi pi-refresh" (click)="resetSearch()"></p-button>
+                                </div>
+                                <div class="flex justify-content-end align-items-center">
+                                    <button [disabled]="!searchInPlace" pButton class="p-button-text p-button-rounded"
+                                        icon="pi pi-filter-slash" (click)="resetSearch()"></button>
+                                    <div class="p-input-icon-left formgroup-inline search-input-group">
+                                        <i class="pi pi-search"></i>
+                                        <input
+                                            [ngStyle]="{'width.ch': searchString.value.length, 'min-width.ch': 18, 'max-width.ch': 100}"
+                                            [(ngModel)]="searchInputValue" type="text" #searchString pInputText
+                                            placeholder="Global Search" />
+                                        <!--(input)="tt.filterGlobal(textInput.value, 'contains')" />-->
+                                        <p-button label="Search" (click)="searchFiles(searchString.value)"
+                                            [disabled]="!searchString.value" severity="secondary"></p-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+
+                                <th width="20%">Name</th>
+                                <th width="18%">Modified</th>
+                                <th width="22%">Type</th>
+                                <th width="8%">Size</th>
+                                <th width="20%">Uploaded By</th>
+                                <th><button *ngIf="!showFilters" pButton class="p-button-outlined" icon="pi pi-filter"
+                                        (click)="toggleFilters()"></button>
+                                    <button *ngIf="showFilters" pButton class="p-button-outlined"
+                                        icon="pi pi-filter-slash" (click)="toggleFilters()"></button>
+                                </th>
+                            </tr>
+                            <tr *ngIf="showFilters">
+
+                                <th width="20%">
+                                    <input [(ngModel)]="nameFilter"
+                                        [value]="mt.filters['name'] ? mt.filters['name'].value : ''" pInputText
+                                        type="text" #nameCol (input)="mt.filter(nameCol.value, 'name', 'contains')" />
+                                </th>
+                                <th width="18%"><input pInputText type="text" #modifiedCol
+                                        (input)="mt.filter(modifiedCol.value, 'modifiedTime', 'contains')" /></th>
+                                <th width="22%"><input pInputText type="text" #typeCol
+                                        (input)="mt.filter(typeCol.value, 'type', 'contains')" />
+                                </th>
+                                <th width="8%">
+                                    <div class="input-container"><input pInputText type="text" #sizeCol
+                                            (input)="mt.filter(sizeCol.value, 'size', 'contains')" /></div>
+                                </th>
+                                <th widht="20%"><input pInputText type="text" #uploadedByCol
+                                        (input)="mt.filter(uploadedByCol.value, 'uploadedBy', 'contains')" /></th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                            <tr *ngIf="rowData['type'] != 'Folder'">
+                                <td width="20%" pDraggable (onDragStart)="dragStart($event, rowData)"
+                                    (onDragEnd)="dragEnd()">
+                                    <i [class]="getIconForFileExtension(rowData['type'])"
+                                        *ngIf="rowData['type'] != 'Folder'" style="padding-right: 4px;"></i>
+                                    {{rowData['name']}}
+                                    <p-overlayPanel #op width="600px">
+                                        <!--<img src="{{rowData['previewLink']}}" alt="preview"/>-->
+                                    </p-overlayPanel>
+                                </td>
+
+                                <td width="18%">{{rowData['modifiedTime']}}</td>
+                                <td width="22%" style="white-space: normal;">{{rowData['type']}}</td>
+                                <td width="8%">{{rowData['size']}}</td>
+                                <td width="20%" style="white-space: normal;">{{rowData['uploadedBy']}}</td>
+                                <td>
+                                    <button *ngIf="rowData['type'] != 'Folder' && rowData['type'] != 'Company'" pButton
+                                        pRipple icon="pi pi-download" class="p-button-rounded p-button-help mr-2"
+                                        (click)="downloadFile(rowData)"></button>
+                                    <button *ngIf="rowData['type'] != 'Folder' && rowData['type'] != 'Company'" pButton
+                                        pRipple icon="pi pi-info-circle" class="p-button-rounded p-button-success mr-2"
+                                        (click)="getCommentsForFile(rowData)"></button>
+                                    <p-toast></p-toast>
+                                    <p-confirmPopup></p-confirmPopup>
+                                    <button *ngIf="rowData['type'] != 'Folder' && user && user.roles.includes('Admin')"
+                                        pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger mr-2"
+                                        (click)="deleteFile($event,rowData)"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-treeTable>
+                </div>
+            </ng-template>
+        </p-splitter>
+    </div>
+    <div class="right-panel card-right-panel" *ngIf="showRightPanel"
+        [@panelAnimation]="showRightPanel ? 'opened' : 'closed'" [style.width]="rightPanelWidth + '%'">
+        <div>
+            <span style="text-align: left"><p-button *ngIf="showRightPanel" icon="pi pi-chevron-left" [text]="true"
+                    severity="secondary" label="Back to Assets" (click)="closeRightPanel()"></p-button></span>
+            <p-button *ngIf="!showRightPanel" icon="pi pi-arrows-alt" severity="secondary" size="small" [rounded]="true"
+                [text]="true" styleClass="text-align: right" (click)="openRightPanel()"></p-button>
+            <app-asset-detail [fileInfo]="selectedFile"></app-asset-detail>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+.layout-footer {
+    transition: margin-left $transitionDuration;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+    gap: 20px; 
+}
+
+.logo-img {
+    width: 50px; /* Adjust the width of the logo as needed */
+    height: auto; /* Maintain aspect ratio */
+}

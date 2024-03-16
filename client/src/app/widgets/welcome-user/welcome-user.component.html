@@ -1,0 +1,7 @@
+<div class="formgroup-inline" *ngIf="(accountService.currentUser$ | async) as user">
+    <div class="avatar-container"><p-avatar image="{{user.photoUrl || './assets/user.png'}}" 
+        styleClass="avatar-circle mr-2"
+        size="large" shape="circle" (click)="appMain.onTopbarMenuButtonClick($event)"></p-avatar></div>
+    <h5 class="welcome-container">Welcome {{user.knownAs | titlecase}}</h5>
+   <!--<p-menu #menu [model]="loginitems" [popup]="true"></p-menu>    -->         
+</div>

@@ -1,0 +1,142 @@
+<div class="card">
+    <h6 style="text-align: center;" *ngIf="fileInfo">{{fileInfo.name}}</h6>
+    <p-tabView styleClass="tabview-custom" [(activeIndex)]="activeTab" (onChange)="handleChange($event)">
+        <p-tabPanel (click)="activeTab=0" >
+            <ng-template pTemplate="header">
+                <i class="pi pi-comments me-5"></i>
+                <span>Comments</span>
+            </ng-template>
+            <div class="card">
+                <p-table [value]="comments!" [scrollable]="true"  scrollHeight='flex' 
+                [scrollable]="true" [style]="{ width: 'flex' }" [paginator]="true" 
+                [rows]="5" [showCurrentPageReport]="true"
+                styleClass="p-datatable-sm"
+                scrollDirection="horizontal"   
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    [rowsPerPageOptions]="[5, 10, 25, 50]">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th pSortableColumn="content" style="width:40%">Comment <p-sortIcon field="content"></p-sortIcon></th>
+                            <th pSortableColumn="modifiedTime" style="width:20%">Last Modified <p-sortIcon field="modifiedTime"></p-sortIcon></th>
+                            <th pSortableColumn="resolved" style="width:10%">Status <p-sortIcon field="resolved"></p-sortIcon></th>
+                            <th pSortableColumn="createdBy" style="width:20%">Created By <p-sortIcon field="createdBy"></p-sortIcon></th>
+                            <th style="width:20%">
+                                <p-button *ngIf="addComment == false" icon="pi pi-plus" (click)="toggleAddComment()" label="New"></p-button>
+                                <p-button *ngIf="addComment == true" icon="pi pi-times" severity="warning" (click)="toggleAddComment()" label="Cancel"></p-button>
+                            </th>
+                        </tr>
+                        <tr *ngIf="addComment == true">
+                            <td colspan="5">  
+                                <div class="card flex flex-column align-items-center" >
+                                    <h5 class="text-center">Add Comment</h5>
+                                <span class="p-float-label">
+                                    <textarea id="float-input" rows="5" cols="40" maxlength="2048" pInputTextarea [(ngModel)]="inputComment"></textarea>
+                                    <label for="float-input">Max length is 2048 characters</label>
+                                </span>   
+                                <p-button icon="pi pi-plus" (click)="addNewComment()" label="Add"></p-button></div>
+                            </td>
+                        </tr>  
+
+                        <tr *ngIf="resolveComment == true">
+                            <td colspan="5"> 
+                                <div class="card flex flex-column align-items-center" >
+                                    <h5 class="text-center">Resolve Comment</h5>
+                                <span class="p-float-label">
+                                    <textarea id="float-input" rows="5" cols="40" maxlength="2048" pInputTextarea [(ngModel)]="replyComment"></textarea>
+                                    <label for="float-input">Max length is 2048 characters</label>
+                                </span> 
+                                <div class="button-container">
+                                <p-button icon="pi pi-check" (click)="resolveCommentByReply()" label="Resolve"></p-button>
+                                <p-button icon="pi pi-times" (click)="toggleResolveComment('')" label="Cancel" severity="warning"></p-button></div>
+                                </div>  
+                            </td>
+                        </tr>    
+                    </ng-template>
+                    <ng-template pTemplate="body" let-comment>
+                        <tr>
+                            <td>{{comment.content}}</td>
+                            <td>{{comment.modifiedTime | date:'MM-dd-yyyy hh:mm:ss a'}}</td>
+                            <td>
+                                <p-tag *ngIf="comment.resolved" severity="success" value="Resolved"></p-tag>
+                                <p-tag *ngIf="!comment.resolved" severity="warning" value="Unresolved"></p-tag>
+                            </td>
+                            <td>{{comment.createdBy}}</td>
+                            <td><p-button *ngIf="!comment.resolved" icon="pi pi-check" label="Resolve" size="small"
+                                (click)="toggleResolveComment(comment.id)"></p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                </p-table>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Header II" (click)="activeTab = 1">
+            <ng-template pTemplate="header">
+                <i class="pi pi-history me-5"></i>
+                <span>Versions</span>
+            </ng-template>
+            <div class="card listview">
+                <p-table [value]="versions!" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+                    [scrollable]="true"  scrollHeight='flex' [scrollable]="true" 
+                    [style]="{ width: 'flex' }"
+                    styleClass="p-datatable-sm"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+                    [rowsPerPageOptions]="[5, 10, 25, 50]">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Original Filename</th>
+                            <th>Modified Time</th>
+                            <th>Uploaded By</th>
+                            <th>
+                                <p-button icon="pi pi-plus" (click)="toggleAddVersion()" label="New Version"></p-button>
+                            </th>
+                        </tr>
+                        <tr *ngIf="addVersion == true">
+                            <td colspan="4">    
+                                <app-custom-file-uploader (uploadCompleteEvent)="handleUploadComplete($event)" [fileInfo]="fileInfo"></app-custom-file-uploader>
+                            </td>
+                        </tr>                    
+                    </ng-template>
+                    <ng-template pTemplate="body" let-version>
+                        <tr>
+                            <td>{{version.originalFilename}}</td>
+                            <td>{{version.modifiedTime | date:'MM-dd-yyyy hh:mm:ss a'}}</td>
+                            <td>{{version.uploadedBy}}</td>
+                            <td>
+                                <p-button icon="pi pi-download" [rounded]="true" [text]="true" severity="info" size="small"                                 
+                                (onClick)="downloadFile(version.id)"></p-button>                                                 
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Header III" (click)="activeTab = 2">
+            <ng-template pTemplate="header">
+                <i class="pi pi-download me-5"></i>
+                <span>Downloads</span>
+            </ng-template>
+            <div class="card listview">
+                <p-table [value]="downloads" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+                    [scrollable]="true"  scrollHeight='flex' [scrollable]="true" 
+                    [style]="{ width: 'flex' }"
+                    styleClass="p-datatable-sm"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+                    [rowsPerPageOptions]="[5, 10, 25, 50]">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Downloaded By</th>
+                            <th>Time</th>
+                        </tr>                  
+                    </ng-template>
+                    <ng-template pTemplate="body" let-download>
+                        <tr>
+                            <td>{{download.downloadedBy}}</td>
+                            <td>{{download.modifiedTime | date:'MM-dd-yyyy hh:mm:ss a'}}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>

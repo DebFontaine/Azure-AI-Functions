@@ -1,0 +1,27 @@
+
+    <p-dialog #dialogAI header="Header" [(visible)]="visible"
+        [style]="{ width: '30vw' }">
+        <ng-template pTemplate="header">
+            <span class="text-xl font-bold">Upload Image using AI</span>
+        </ng-template>
+        <p-fileUpload *ngIf="!keyWordsResponse" #fileuploaderAI uploadLabel="Analyze" name="file"
+            size="small" styleClass="p-button-outline" accept="image/*"
+            (onError)="onUploadError($event)"
+            (onUpload)="onFileUploadEvent($event)" chooseIcon="pi pi-upload"
+            url={{url}}>
+        </p-fileUpload>
+        <div *ngIf="autoFile && keyWordsResponse">
+            <h5>Select up to 3 tags to add to your file:</h5>
+            <ng-container
+                *ngFor="let tag of keyWordsResponse.tagsResult.values; let i = index;">
+                <p-checkbox [(ngModel)]="selectedTags[i]" (onChange)="updateSelectedCount($event, tag.name)" [label]="tag.name" [value]="tag.name" class="mr-2"></p-checkbox>
+            </ng-container>
+        </div>
+        <div *ngIf="autoFile && keyWordsResponse" class="card flex justify-content-center gap-3 mt-3">
+            <button pButton pRipple label="Continue Upload" class="p-button-success mr-2"
+                  (click)="uploadFile()"></button>
+            <button pButton pRipple label="Cancel" (click)="closeDialog()"  styleClass="w-full text-primary-50 border-1 border-white-alpha-30 hover:bg-white-alpha-10" 
+                    class="p-button-warning p-button-small"></button>
+        </div>
+    </p-dialog>
+
