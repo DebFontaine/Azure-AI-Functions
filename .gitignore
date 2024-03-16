@@ -262,3 +262,10 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+client/src/environments/environment.ts
+client/src/environments/environment.prod.ts
+client/src/environments/environment.prod.ts
+API/appsettings.json
+API/appsettings.Development.json
+API/synchub-2ab4c3abb4d6.json
+API/my-test-402521-9e20dfb7f0c7.json
