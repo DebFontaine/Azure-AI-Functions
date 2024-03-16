@@ -26,6 +26,7 @@ var connString = "";
 if (builder.Environment.IsDevelopment())
 {
     connString = builder.Configuration.GetConnectionString("DefaultConnection");
+    Console.WriteLine("connString:" + connString);
 }
 else
 {
@@ -44,12 +45,12 @@ builder.Services.AddDbContext<DataContext>(opt =>
 builder.Services.AddSwaggerGen();
  */
 var app = builder.Build();
-app.UseSwagger();
-app.UseSwaggerUI(c => 
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "SynHub API v1");
-    c.RoutePrefix = string.Empty;
-});
+//app.UseSwagger();
+//app.UseSwaggerUI(c => 
+//{
+    //c.SwaggerEndpoint("/swagger/v1/swagger.json", "SynHub API v1");
+    //c.RoutePrefix = string.Empty;
+//});
 
 app.UseMiddleware<ExceptionMiddleware>();
 
